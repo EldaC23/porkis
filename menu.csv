@@ -1,0 +1,26 @@
+categoria,nombre,descripcion,precio,disponible
+Hamburguesas,Normal de Carne,"Pan, carne de res, jamón, queso, lechuga, tomate y salsas.",6,si
+Hamburguesas,Normal de Pollo,"Pan, pollo desmechado, jamón, queso, lechuga, tomate y salsas.",7,si
+Hamburguesas,Pollo Krispy,"Pan, pollo crispy, queso, lechuga, tomate y salsas.",9,si
+Hamburguesas,Super Porks,"Pan, doble carne, tocineta, jamón, queso, huevo, lechuga, tomate y salsas.",9.5,si
+Pepitos,Pepito Clásico,"Pan, proteína a elección, queso, lechuga, tomate, cebolla y salsas.",10,si
+Pepitos,Mega Pepito,"Pan grande, doble proteína a elección, queso, vegetales y salsas.",14,si
+Pepitos,Pepito Super Porks,"Carne, pollo, jamón, tocineta, queso y salsas.",12,si
+Perros calientes,Perro Clásico,"Pan, salchicha, repollo, cebolla, papitas, queso y salsas.",4.5,si
+Perros calientes,Perro Capricho,"Pan, salchicha, tocineta, queso, huevo de codorniz, papitas y salsas.",6.5,si
+Sandwiches,Club House,"Pan tostado, pollo, jamón, queso, tocineta, lechuga y tomate.",11,si
+Sandwiches,Sándwich de Pernil,"Pan, pernil de cerdo, lechuga, tomate y salsa de la casa.",9,si
+Parrillas,Parrilla de Pollo,"Pollo a la parrilla con papas fritas, ensalada y guasacaca.",12,si
+Parrillas,Parrilla Mixta,"Carne, pollo y chorizo a la parrilla con papas fritas y ensalada.",18,si
+Terneritos,Ternerito de Pollo,"Pan, pollo, jamón, queso, lechuga, tomate y salsas.",10,si
+Terneritos,Ternerito de Carne,"Pan, carne de res, jamón, queso, lechuga, tomate y salsas.",11,si
+Ensaladas,Ensalada César,"Lechuga, crutones, queso parmesano y aderezo César.",7,si
+Ensaladas,César con Pollo Krispy,"Lechuga, pollo crispy, crutones, parmesano y aderezo César.",10,si
+Bebidas,Lipton,"Té frío, 500 ml.",2.5,si
+Bebidas,Agua Mineral,"Con o sin gas, 500 ml.",2,si
+Raciones,Salchipapas,"Papas fritas, salchichas, queso rallado y salsas.",7,si
+Raciones,Aros de Cebolla,Porción de aros de cebolla dorados con salsa.,4.5,si
+Combos,Baby Rompedeita,Hamburguesa baby con papas fritas y refresco.,20,si
+Combos,Kids Tenders,Tenders de pollo con papas fritas y juguito.,6.5,si
+Pollos,1 Pollo Broaster,"Pollo broaster entero con papas fritas, ensalada y salsas.",24,si
+Pollos,1/2 Pollo Asado,"Medio pollo asado con papas fritas, ensalada y salsas.",10,si
