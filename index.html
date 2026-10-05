@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c1210">
+<title>Porkis Burger · Menú interactivo (demo)</title>
+<style>
+  :root {
+    --bg: #1c1210;
+    --surface: #271a17;
+    --surface-2: #33231f;
+    --line: #4a342e;
+    --text: #fff4e6;
+    --muted: #c4a99a;
+    --red: #e63b2e;
+    --red-dark: #b82a20;
+    --mustard: #ffc233;
+    --green: #3fbf74;
+    --radius: 16px;
+    --font: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --display: "Arial Black", "Impact", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: var(--font); line-height: 1.4;
+    padding-bottom: 96px;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
+  input, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--mustard); outline-offset: 2px; }
+
+  /* Header */
+  .hero {
+    padding: 28px 16px 20px; text-align: center;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(230,59,46,.35), transparent 55%),
+      radial-gradient(circle at 90% 30%, rgba(255,194,51,.18), transparent 50%);
+    border-bottom: 1px solid var(--line);
+  }
+  .logo { font-size: 44px; line-height: 1; }
+  .hero h1 { font-family: var(--display); font-size: clamp(28px, 6vw, 44px); margin: 6px 0 2px; letter-spacing: .5px; text-transform: uppercase; }
+  .hero h1 span { color: var(--mustard); }
+  .hero p { margin: 0; color: var(--muted); font-size: 15px; }
+  .demo-tag {
+    display: inline-block; margin-top: 10px; padding: 3px 10px; border-radius: 99px;
+    background: var(--surface-2); border: 1px dashed var(--mustard); color: var(--mustard);
+    font-size: 12px; letter-spacing: .5px; text-transform: uppercase;
+  }
+
+  /* Sticky nav */
+  .nav {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(28,18,16,.94); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner { max-width: 1100px; margin: 0 auto; padding: 10px 16px; display: grid; gap: 8px; }
+  .search {
+    width: 100%; padding: 11px 14px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--line);
+  }
+  .search::placeholder { color: var(--muted); }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: none; padding: 8px 14px; border-radius: 99px; white-space: nowrap;
+    background: var(--surface); border: 1px solid var(--line); font-weight: 700; font-size: 14px;
+  }
+  .tab[aria-pressed="true"] { background: var(--red); border-color: var(--red); }
+
+  /* Layout */
+  .layout { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 24px; }
+  @media (min-width: 900px) {
+    .layout { grid-template-columns: 1fr 340px; align-items: start; }
+    body { padding-bottom: 24px; }
+  }
+
+  .cat { scroll-margin-top: 130px; margin-bottom: 28px; }
+  .cat h2 { font-family: var(--display); text-transform: uppercase; font-size: 22px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  .cat h2::after { content: ""; flex: 1; height: 2px; background: linear-gradient(90deg, var(--red), transparent); }
+  .grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 600px) { .grid { grid-template-columns: 1fr 1fr; } }
+
+  /* Product card */
+  .card {
+    display: grid; grid-template-columns: 76px 1fr; gap: 12px; align-items: center; text-align: left;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px; transition: transform .12s, border-color .12s;
+  }
+  .card:hover { border-color: var(--mustard); transform: translateY(-2px); }
+  .thumb {
+    width: 76px; height: 76px; border-radius: 14px; display: grid; place-items: center; font-size: 40px;
+    background: linear-gradient(135deg, var(--surface-2), #4a2a22);
+  }
+  .card h3 { margin: 0 0 2px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 13px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; gap: 8px; }
+  .price { font-weight: 800; color: var(--mustard); font-size: 17px; }
+  .add {
+    width: 38px; height: 38px; border-radius: 50%; background: var(--red); font-size: 22px; font-weight: 700;
+    display: grid; place-items: center; line-height: 1;
+  }
+  .add:active { background: var(--red-dark); transform: scale(.92); }
+  .badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 7px; border-radius: 99px; background: var(--mustard); color: #2a1a00; margin-left: 6px; vertical-align: middle; }
+  .badge.hot { background: var(--red); color: #fff; }
+  .badge.veg { background: var(--green); color: #052; }
+  .empty { color: var(--muted); padding: 24px; text-align: center; }
+
+  /* Cart */
+  .cart {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .cart h2 { margin: 0; font-family: var(--display); text-transform: uppercase; font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .cart-close { display: none; font-size: 26px; padding: 0 8px; }
+  .lines { display: grid; gap: 10px; max-height: 50vh; overflow-y: auto; }
+  .line { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+  .line b { font-size: 15px; }
+  .line small { grid-column: 1 / -1; color: var(--muted); }
+  .qty { display: inline-flex; align-items: center; gap: 8px; }
+  .qty button { width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); font-weight: 800; }
+  .qty button:active { background: var(--line); }
+  .total { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; }
+  .total span:last-child { color: var(--mustard); }
+  .primary {
+    width: 100%; padding: 14px; border-radius: 14px; background: var(--green); color: #05260f;
+    font-weight: 800; font-size: 16px; text-align: center; text-decoration: none; display: block;
+  }
+  .primary:disabled, .primary[aria-disabled="true"] { background: var(--surface-2); color: var(--muted); pointer-events: none; }
+  .link { color: var(--muted); font-size: 13px; text-decoration: underline; align-self: center; }
+  .field { width: 100%; padding: 10px 12px; border-radius: 10px; background: var(--bg); border: 1px solid var(--line); }
+  .hint { color: var(--muted); font-size: 12px; margin: 0; }
+
+  @media (min-width: 900px) { .cart { position: sticky; top: 140px; } }
+  @media (max-width: 899px) {
+    .cart {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; max-height: 85vh;
+      border-radius: 22px 22px 0 0; transform: translateY(105%); transition: transform .25s;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    .cart.open { transform: none; }
+    .cart-close { display: block; }
+    .lines { max-height: 40vh; }
+  }
+
+  /* Mobile cart bar */
+  .bar {
+    position: fixed; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); z-index: 30;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px; border-radius: 16px; background: var(--red); font-weight: 800; font-size: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  }
+  .bar[hidden] { display: none; }
+  @media (min-width: 900px) { .bar { display: none; } }
+
+  /* Product sheet (modal) */
+  .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.65); display: none; align-items: flex-end; justify-content: center; }
+  .overlay.open { display: flex; }
+  .sheet {
+    width: 100%; max-width: 480px; max-height: 92vh; overflow-y: auto;
+    background: var(--surface); border-radius: 22px 22px 0 0; padding: 20px;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)); display: grid; gap: 12px;
+  }
+  @media (min-width: 600px) { .overlay { align-items: center; } .sheet { border-radius: 22px; } }
+  .sheet .big { font-size: 64px; text-align: center; }
+  .sheet h3 { margin: 0; font-family: var(--display); text-transform: uppercase; font-size: 22px; }
+  .sheet p { margin: 0; color: var(--muted); }
+  .extra { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
+  .extra input { accent-color: var(--red); width: 20px; height: 20px; margin-right: 10px; }
+  .extra span:last-child { color: var(--mustard); font-weight: 700; }
+  .sheet-foot { display: flex; gap: 12px; align-items: center; }
+  .sheet-foot .primary { flex: 1; background: var(--red); color: #fff; }
+
+  .toast {
+    position: fixed; left: 50%; top: 16px; transform: translate(-50%, -80px); z-index: 60;
+    background: var(--green); color: #05260f; font-weight: 800; padding: 10px 18px; border-radius: 99px;
+    transition: transform .25s;
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  footer { text-align: center; color: var(--muted); font-size: 12px; padding: 8px 16px 24px; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="logo" aria-hidden="true">🍔🐷</div>
+  <h1>Porkis <span>Burger</span></h1>
+  <p>Armá tu pedido a tu manera · Tocá, personalizá y mandalo por WhatsApp</p>
+  <span class="demo-tag">Demo · productos y precios de ejemplo</span>
+</header>
+
+<div class="nav">
+  <div class="nav-inner">
+    <input class="search" id="search" type="search" placeholder="Buscar: cheddar, picante, papas…" aria-label="Buscar en el menú">
+    <div class="tabs" id="tabs" role="group" aria-label="Categorías"></div>
+  </div>
+</div>
+
+<main class="layout">
+  <section id="menu" aria-label="Menú"></section>
+
+  <aside class="cart" id="cart" aria-label="Tu pedido">
+    <h2>Tu pedido <button class="cart-close" id="cartClose" aria-label="Cerrar pedido">×</button></h2>
+    <div class="lines" id="lines"></div>
+    <div class="total"><span>Total</span><span id="total">$0</span></div>
+    <input class="field" id="name" placeholder="Tu nombre" aria-label="Tu nombre" autocomplete="name">
+    <input class="field" id="note" placeholder="Retiro, delivery o mesa (opcional)" aria-label="Indicaciones del pedido">
+    <a class="primary" id="send" href="#" target="_blank" rel="noopener" aria-disabled="true">Enviar pedido por WhatsApp</a>
+    <button class="link" id="clear" type="button">Vaciar pedido</button>
+    <p class="hint">Demo: el botón arma el mensaje del pedido listo para enviar al número del local.</p>
+  </aside>
+</main>
+
+<button class="bar" id="bar" hidden><span id="barCount">0 productos</span><span id="barTotal">$0</span><span>Ver pedido ›</span></button>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<footer>Demo de menú interactivo para Porkis Burger · Los productos y precios son de ejemplo.</footer>
+
+<script>
+  // Número del local (formato internacional sin +). Reemplazar por el real.
+  const WHATSAPP = "5490000000000";
+
+  const CATEGORIES = [
+    { id: "burgers", name: "Burgers", icon: "🍔" },
+    { id: "combos", name: "Combos", icon: "🎁" },
+    { id: "papas", name: "Papas y extras", icon: "🍟" },
+    { id: "bebidas", name: "Bebidas", icon: "🥤" },
+    { id: "postres", name: "Postres", icon: "🍨" },
+  ];
+
+  const BURGER_EXTRAS = [
+    { id: "ched", name: "Extra cheddar", price: 900 },
+    { id: "pan", name: "Panceta crocante", price: 1300 },
+    { id: "huevo", name: "Huevo frito", price: 900 },
+    { id: "med", name: "Medallón extra", price: 3200 },
+  ];
+
+  // 25 productos de ejemplo (precios en pesos argentinos, orden de magnitud realista).
+  const PRODUCTS = [
+    { id: 1, cat: "burgers", icon: "🍔", name: "Porkis Clásica", price: 8900, badge: "Más pedida", desc: "Medallón smash de 120 g, cheddar, lechuga, tomate y salsa Porkis en pan de papa." },
+    { id: 2, cat: "burgers", icon: "🍔", name: "Doble Porkis", price: 11500, desc: "Dos medallones smash, doble cheddar, pickles y cebolla caramelizada." },
+    { id: 3, cat: "burgers", icon: "🥓", name: "Cheddar & Bacon", price: 10900, badge: "Favorita", desc: "Medallón, panceta crocante, cheddar fundido y mayo ahumada." },
+    { id: 4, cat: "burgers", icon: "🐖", name: "Cerdo BBQ", price: 11200, desc: "Medallón de cerdo desmenuzado, salsa BBQ casera y coleslaw." },
+    { id: 5, cat: "burgers", icon: "🍗", name: "Crispy Chicken", price: 9800, desc: "Pollo crocante, lechuga, tomate y mayo de limón." },
+    { id: 6, cat: "burgers", icon: "🌶️", name: "Picante Jalapeño", price: 10700, badge: "Picante", tag: "hot", desc: "Medallón, jalapeños, pepper jack y salsa sriracha." },
+    { id: 7, cat: "burgers", icon: "🧅", name: "Smash Criolla", price: 10400, badge: "Nuevo", desc: "Medallón smash, provolone, salsa criolla y chimichurri." },
+    { id: 8, cat: "burgers", icon: "🥬", name: "Veggie Garden", price: 9500, badge: "Veggie", tag: "veg", desc: "Medallón de lentejas y zanahoria, rúcula, tomate y mayo de albahaca." },
+
+    { id: 9, cat: "combos", icon: "🎁", name: "Combo Clásico", price: 12900, desc: "Porkis Clásica + papas fritas + gaseosa 500 ml.", extras: false },
+    { id: 10, cat: "combos", icon: "🎁", name: "Combo Doble", price: 16500, badge: "Mejor precio", desc: "Doble Porkis + papas cheddar y panceta + gaseosa 500 ml.", extras: false },
+    { id: 11, cat: "combos", icon: "🧒", name: "Combo Kids", price: 8500, desc: "Mini burger, papas chicas, jugo y sorpresa.", extras: false },
+
+    { id: 12, cat: "papas", icon: "🍟", name: "Papas fritas", price: 4200, desc: "Corte bastón, crocantes y bien saladas.", extras: false },
+    { id: 13, cat: "papas", icon: "🧀", name: "Papas cheddar y panceta", price: 6500, badge: "Top", desc: "Papas bañadas en cheddar con panceta crocante.", extras: false },
+    { id: 14, cat: "papas", icon: "🧅", name: "Aros de cebolla", price: 4800, desc: "8 aros rebozados con dip de mayo ahumada.", extras: false },
+    { id: 15, cat: "papas", icon: "🍗", name: "Nuggets x8", price: 5600, desc: "Pechuga rebozada con salsa a elección.", extras: false },
+    { id: 16, cat: "papas", icon: "🥫", name: "Salsa BBQ casera", price: 800, desc: "Pote de 40 g.", extras: false },
+    { id: 17, cat: "papas", icon: "🥫", name: "Mayo ahumada", price: 800, desc: "Pote de 40 g.", extras: false },
+
+    { id: 18, cat: "bebidas", icon: "🥤", name: "Gaseosa 500 ml", price: 2500, desc: "Cola, lima-limón o naranja.", extras: false },
+    { id: 19, cat: "bebidas", icon: "🍾", name: "Gaseosa 1,5 L", price: 4200, desc: "Para compartir.", extras: false },
+    { id: 20, cat: "bebidas", icon: "🍋", name: "Limonada con menta", price: 3200, desc: "Exprimida al momento, con jengibre opcional.", extras: false },
+    { id: 21, cat: "bebidas", icon: "🍺", name: "Cerveza artesanal", price: 4500, desc: "Pinta de 473 ml: rubia, roja o IPA.", extras: false },
+    { id: 22, cat: "bebidas", icon: "💧", name: "Agua mineral", price: 1800, desc: "Con o sin gas, 500 ml.", extras: false },
+
+    { id: 23, cat: "postres", icon: "🍫", name: "Brownie con dulce de leche", price: 4900, desc: "Tibio, con una bocha de crema.", extras: false },
+    { id: 24, cat: "postres", icon: "🍨", name: "Helado en vaso", price: 3800, desc: "Dos gustos a elección.", extras: false },
+    { id: 25, cat: "postres", icon: "🥧", name: "Cheesecake frutos rojos", price: 5200, desc: "Porción individual.", extras: false },
+  ];
+
+  const $ = (s) => document.querySelector(s);
+  const money = (n) => "$" + n.toLocaleString("es-AR");
+  const byId = (id) => PRODUCTS.find((p) => p.id === id);
+  const hasExtras = (p) => p.cat === "burgers";
+
+  let cart = [];       // { key, id, qty, extras: [ids], note }
+  let activeCat = "all";
+  let query = "";
+
+  // ---------- storage (opcional) ----------
+  function save() { try { localStorage.setItem("porkis-cart", JSON.stringify(cart)); } catch (e) {} }
+  function load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem("porkis-cart") || "[]");
+      cart = raw.filter((l) => byId(l.id));
+    } catch (e) { cart = []; }
+  }
+
+  // ---------- menu ----------
+  function renderTabs() {
+    const items = [{ id: "all", name: "Todo", icon: "⭐" }, ...CATEGORIES];
+    $("#tabs").innerHTML = items.map((c) =>
+      `<button class="tab" data-cat="${c.id}" aria-pressed="${c.id === activeCat}">${c.icon} ${c.name}</button>`).join("");
+  }
+
+  function cardHTML(p) {
+    const b = p.badge ? `<span class="badge ${p.tag || ""}">${p.badge}</span>` : "";
+    return `<article>
+      <div class="card" data-open="${p.id}" role="button" tabindex="0" aria-label="${p.name}, ${money(p.price)}">
+        <div class="thumb" aria-hidden="true">${p.icon}</div>
+        <div>
+          <h3>${p.name}${b}</h3>
+          <p>${p.desc}</p>
+          <div class="row"><span class="price">${money(p.price)}</span>
+            <button class="add" data-add="${p.id}" aria-label="Agregar ${p.name}">+</button></div>
+        </div>
+      </div></article>`;
+  }
+
+  function renderMenu() {
+    const q = query.trim().toLowerCase();
+    let html = "";
+    for (const c of CATEGORIES) {
+      if (activeCat !== "all" && activeCat !== c.id) continue;
+      const list = PRODUCTS.filter((p) => p.cat === c.id &&
+        (!q || (p.name + " " + p.desc + " " + (p.badge || "")).toLowerCase().includes(q)));
+      if (!list.length) continue;
+      html += `<div class="cat" id="cat-${c.id}"><h2>${c.icon} ${c.name}</h2><div class="grid">${list.map(cardHTML).join("")}</div></div>`;
+    }
+    $("#menu").innerHTML = html || `<p class="empty">No encontramos nada con “${query}”. Probá con otra palabra 🙂</p>`;
+  }
+
+  // ---------- cart ----------
+  const lineKey = (id, extras, note) => [id, [...extras].sort().join("+"), note.trim().toLowerCase()].join("|");
+  const lineUnit = (l) => byId(l.id).price + l.extras.reduce((s, e) => s + BURGER_EXTRAS.find((x) => x.id === e).price, 0);
+  const cartTotal = () => cart.reduce((s, l) => s + lineUnit(l) * l.qty, 0);
+  const cartCount = () => cart.reduce((s, l) => s + l.qty, 0);
+
+  function addLine(id, qty = 1, extras = [], note = "") {
+    const key = lineKey(id, extras, note);
+    const found = cart.find((l) => l.key === key);
+    if (found) found.qty += qty; else cart.push({ key, id, qty, extras, note });
+    renderCart();
+    toast(`${byId(id).name} agregado ✔`);
+  }
+
+  function renderCart() {
+    $("#lines").innerHTML = cart.length ? cart.map((l) => {
+      const p = byId(l.id);
+      const det = [...l.extras.map((e) => "+ " + BURGER_EXTRAS.find((x) => x.id === e).name), l.note && `“${l.note}”`].filter(Boolean).join(" · ");
+      return `<div class="line"><b>${p.icon} ${p.name}</b><span>${money(lineUnit(l) * l.qty)}</span>
+        ${det ? `<small>${det}</small>` : ""}
+        <span class="qty"><button data-dec="${l.key}" aria-label="Quitar uno">−</button>${l.qty}<button data-inc="${l.key}" aria-label="Agregar uno">+</button></span></div>`;
+    }).join("") : `<p class="empty">Todavía no sumaste nada.<br>¡Tocá el <b>+</b> de cualquier producto!</p>`;
+
+    const t = cartTotal(), n = cartCount();
+    $("#total").textContent = money(t);
+    $("#barCount").textContent = n + (n === 1 ? " producto" : " productos");
+    $("#barTotal").textContent = money(t);
+    $("#bar").hidden = n === 0;
+    $("#clear").hidden = n === 0;
+    updateSend();
+    save();
+  }
+
+  function orderText() {
+    const name = $("#name").value.trim();
+    const lines = cart.map((l) => {
+      const p = byId(l.id);
+      const det = [...l.extras.map((e) => BURGER_EXTRAS.find((x) => x.id === e).name), l.note].filter(Boolean).join(", ");
+      return `• ${l.qty} x ${p.name}${det ? " (" + det + ")" : ""} — ${money(lineUnit(l) * l.qty)}`;
+    });
+    const extra = $("#note").value.trim();
+    return `Hola Porkis Burger! 🍔${name ? " Soy " + name + "." : ""} Quiero hacer este pedido:\n\n${lines.join("\n")}\n\nTotal: ${money(cartTotal())}${extra ? "\n" + extra : ""}`;
+  }
+
+  function updateSend() {
+    const a = $("#send");
+    if (!cart.length) { a.setAttribute("aria-disabled", "true"); a.href = "#"; return; }
+    a.removeAttribute("aria-disabled");
+    a.href = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(orderText())}`;
+  }
+
+  // ---------- product sheet ----------
+  let sheetState = null;
+  function openSheet(id) {
+    const p = byId(id);
+    sheetState = { id, qty: 1, extras: new Set() };
+    const extras = hasExtras(p) ? `<div>${BURGER_EXTRAS.map((e) =>
+      `<label class="extra"><span><input type="checkbox" value="${e.id}">${e.name}</span><span>+${money(e.price)}</span></label>`).join("")}</div>
+      <input class="field" id="sheetNote" placeholder="Aclaraciones (ej: sin cebolla)" maxlength="80" aria-label="Aclaraciones">` : "";
+    $("#sheet").innerHTML = `
+      <div class="big" aria-hidden="true">${p.icon}</div>
+      <h3 id="sheetTitle">${p.name}</h3><p>${p.desc}</p>${extras}
+      <div class="sheet-foot">
+        <span class="qty"><button id="sq-" aria-label="Menos">−</button><span id="sq">1</span><button id="sq+" aria-label="Más">+</button></span>
+        <button class="primary" id="sheetAdd"></button>
+      </div>
+      <button class="link" id="sheetClose">Cancelar</button>`;
+    $("#overlay").classList.add("open");
+    refreshSheet();
+    $("#sheetAdd").focus();
+  }
+  function sheetUnit() {
+    const p = byId(sheetState.id);
+    return p.price + [...sheetState.extras].reduce((s, e) => s + BURGER_EXTRAS.find((x) => x.id === e).price, 0);
+  }
+  function refreshSheet() {
+    $("#sq").textContent = sheetState.qty;
+    $("#sheetAdd").textContent = `Agregar · ${money(sheetUnit() * sheetState.qty)}`;
+  }
+  function closeSheet() { $("#overlay").classList.remove("open"); sheetState = null; }
+
+  // ---------- helpers ----------
+  let toastTimer;
+  function toast(msg) {
+    const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1400);
+  }
+  const openCart = () => $("#cart").classList.add("open");
+  const closeCart = () => $("#cart").classList.remove("open");
+
+  // ---------- events ----------
+  document.addEventListener("click", (e) => {
+    const t = e.target;
+    const tab = t.closest("[data-cat]");
+    if (tab) { activeCat = tab.dataset.cat; renderTabs(); renderMenu(); window.scrollTo({ top: 0 }); return; }
+
+    const add = t.closest("[data-add]");
+    if (add) {
+      e.stopPropagation();
+      const id = +add.dataset.add;
+      hasExtras(byId(id)) ? openSheet(id) : addLine(id);
+      return;
+    }
+    const open = t.closest("[data-open]");
+    if (open) { openSheet(+open.dataset.open); return; }
+
+    const inc = t.closest("[data-inc]"), dec = t.closest("[data-dec]");
+    if (inc || dec) {
+      const key = (inc || dec).dataset[inc ? "inc" : "dec"];
+      const l = cart.find((x) => x.key === key);
+      if (l) { l.qty += inc ? 1 : -1; if (l.qty <= 0) cart = cart.filter((x) => x !== l); }
+      renderCart();
+      if (!cart.length) closeCart();
+      return;
+    }
+
+    if (t.closest("#sq-")) { sheetState.qty = Math.max(1, sheetState.qty - 1); refreshSheet(); return; }
+    if (t.closest("#sq\\+") || t.id === "sq+") { sheetState.qty++; refreshSheet(); return; }
+    if (t.closest("#sheetClose") || t.id === "overlay") { closeSheet(); return; }
+    if (t.closest("#sheetAdd")) {
+      const note = ($("#sheetNote") || { value: "" }).value;
+      addLine(sheetState.id, sheetState.qty, [...sheetState.extras], note);
+      closeSheet(); return;
+    }
+    if (t.closest("#bar")) { openCart(); return; }
+    if (t.closest("#cartClose")) { closeCart(); return; }
+    if (t.closest("#clear")) { cart = []; renderCart(); closeCart(); return; }
+    if (t.closest("#send") && t.closest("#send").getAttribute("aria-disabled") === "true") e.preventDefault();
+  });
+
+  document.addEventListener("change", (e) => {
+    if (e.target.matches('.extra input')) {
+      e.target.checked ? sheetState.extras.add(e.target.value) : sheetState.extras.delete(e.target.value);
+      refreshSheet();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { closeSheet(); closeCart(); }
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches("[data-open]")) { e.preventDefault(); openSheet(+e.target.dataset.open); }
+  });
+  $("#search").addEventListener("input", (e) => { query = e.target.value; renderMenu(); });
+  ["#name", "#note"].forEach((s) => $(s).addEventListener("input", updateSend));
+
+  load(); renderTabs(); renderMenu(); renderCart();
+</script>
+</body>
+</html>
